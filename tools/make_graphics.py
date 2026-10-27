@@ -17,27 +17,16 @@ THEMES = {
     "light": dict(
         bg="#ffffff", bg2="#f3f7fb", bg3="#e7eff8", card="#f6f8fa", border="#d0d7de",
         text="#1f2328", muted="#59636e", faint="#8c959f", accent="#0b4f8a", teal="#1a7f72",
-        orange="#bc4c00", chip="#ffffff", dots="#0b4f8a", bond="#aab4be", cell="#8c959f",
+        orange="#bc4c00", chip="#ffffff", dots="#0b4f8a", bond="#aab4be",
         statbg="#eef3f8",
     ),
     "dark": dict(
         bg="#0d1117", bg2="#0f1a2b", bg3="#142540", card="#161b22", border="#30363d",
         text="#e6edf3", muted="#9198a1", faint="#6e7681", accent="#79c0ff", teal="#56d4c3",
-        orange="#f0883e", chip="#0d1117", dots="#79c0ff", bond="#4a5563", cell="#6e7681",
+        orange="#f0883e", chip="#0d1117", dots="#79c0ff", bond="#4a5563",
         statbg="#1c2533",
     ),
 }
-
-# Jmol element colours
-ELEMENTS = {"Zr": ((148, 224, 224), 0.085), "Ni": ((80, 208, 80), 0.072), "Sn": ((102, 128, 128), 0.08)}
-
-
-def shade(rgb, f):
-    r, g, b = rgb
-    if f >= 0:
-        return "#%02x%02x%02x" % tuple(int(c + (255 - c) * f) for c in (r, g, b))
-    return "#%02x%02x%02x" % tuple(int(c * (1 + f)) for c in (r, g, b))
-
 
 def wrap(text, max_chars):
     """Greedy word wrap by character count (good enough for fixed font sizes)."""
@@ -59,72 +48,110 @@ def dot_pattern(t, pid, spacing=22, r=1.1, opacity=0.18):
             f'<circle cx="{spacing/2}" cy="{spacing/2}" r="{r}" fill="{t["dots"]}" opacity="{opacity}"/></pattern>')
 
 
-# ---------------------------------------------------------------- crystal
-def zrnisn_svg(t, cx, cy, size, yaw=0.62, pitch=-0.42, gid="g"):
-    """Ball-and-stick conventional cell of half-Heusler ZrNiSn, projected and depth-sorted."""
-    fcc = [(0, 0, 0), (0, .5, .5), (.5, 0, .5), (.5, .5, 0)]
-    sites = [("Zr", (0, 0, 0)), ("Sn", (.5, .5, .5)), ("Ni", (.25, .25, .25))]
-    atoms, seen = [], set()
-    for el, off in sites:
-        for f in fcc:
-            for i in (-1, 0, 1):
-                for j in (-1, 0, 1):
-                    for k in (-1, 0, 1):
-                        p = (f[0] + off[0] + i, f[1] + off[1] + j, f[2] + off[2] + k)
-                        if all(-1e-6 < v < 1 + 1e-6 for v in p):
-                            key = tuple(round(v, 3) for v in p)
-                            if key not in seen:
-                                seen.add(key)
-                                atoms.append((el, p))
-    nn = math.sqrt(3) / 4
-    bonds = [(a, b) for a, (ea, pa) in enumerate(atoms) if ea == "Ni"
-             for b, (eb, pb) in enumerate(atoms) if eb != "Ni" and abs(math.dist(pa, pb) - nn) < 1e-3]
-    corners = [(i & 1, (i >> 1) & 1, (i >> 2) & 1) for i in range(8)]
-    edges = [(a, b) for a in range(8) for b in range(a + 1, 8)
-             if sum(abs(corners[a][n] - corners[b][n]) for n in range(3)) == 1]
+# ---------------------------------------------------------------- ML-for-materials loop
+def loop_diagram(c, mid, title_fs=14, sub_fs=11.5, subtitles=True):
+    """Structure -> learn -> predict -> verify, drawn in a 440 x 430 box.
 
-    def proj(p):
-        x, y, z = p[0] - .5, p[1] - .5, p[2] - .5
-        cyw, syw, cp, sp = math.cos(yaw), math.sin(yaw), math.cos(pitch), math.sin(pitch)
-        x1, z1 = x * cyw + z * syw, -x * syw + z * cyw
-        y1, z2 = y * cp - z1 * sp, y * sp + z1 * cp
-        k = 3.2 / (3.2 + z2)
-        return cx + x1 * k * size, cy - y1 * k * size, z2, k
-
-    P = [proj(p) for _, p in atoms]
-    C = [proj(c) for c in corners]
+    `c` maps roles to colours (hex, or var(--x) for the website); everything is styled
+    through style="" so CSS variables work. `mid` keeps marker ids unique per document.
+    Returns (defs, body).
+    """
+    S = lambda **kw: "; ".join(f"{k.replace('_', '-')}:{v}" for k, v in kw.items())
+    W, H = 180, 170
+    panels = [((20, 20), "1", "Structure", "crystal → graph"),
+              ((240, 20), "2", "Learn", "GNN · interatomic potential"),
+              ((240, 240), "3", "Predict", "DOS · Seebeck · κL"),
+              ((20, 240), "4", "Verify", "against DFT & experiment")]
+    defs = (f'<marker id="{mid}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" '
+            f'orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="{S(fill=c["accent"])}"/></marker>')
     out = []
-    defs = []
-    for el, (rgb, _) in ELEMENTS.items():
-        defs.append(f'<radialGradient id="{gid}{el}" cx="38%" cy="34%" r="70%">'
-                    f'<stop offset="0" stop-color="{shade(rgb, .78)}"/>'
-                    f'<stop offset=".45" stop-color="{shade(rgb, .05)}"/>'
-                    f'<stop offset="1" stop-color="{shade(rgb, -.5)}"/></radialGradient>')
-    for a, b in edges:
-        far = (C[a][2] + C[b][2]) / 2 > 0
-        dash = ' stroke-dasharray="4 5"' if far else ""
-        out.append((99, f'<line x1="{C[a][0]:.1f}" y1="{C[a][1]:.1f}" x2="{C[b][0]:.1f}" y2="{C[b][1]:.1f}" '
-                        f'stroke="{t["cell"]}" stroke-width="1.2" opacity=".75"{dash}/>'))
-    items = []
-    for a, b in bonds:
-        z = (P[a][2] + P[b][2]) / 2 + 0.02
-        w = 5.2 * size / 300 * (P[a][3] + P[b][3]) / 2
-        items.append((z, f'<line x1="{P[a][0]:.1f}" y1="{P[a][1]:.1f}" x2="{P[b][0]:.1f}" y2="{P[b][1]:.1f}" '
-                         f'stroke="{t["bond"]}" stroke-width="{w:.2f}" stroke-linecap="round"/>'))
-    for n, (el, _) in enumerate(atoms):
-        x, y, z, k = P[n]
-        r = ELEMENTS[el][1] * size * k * 1.15
-        items.append((z, f'<circle cx="{x:.1f}" cy="{y:.1f}" r="{r:.1f}" fill="url(#{gid}{el})"/>'))
-    items.sort(key=lambda it: -it[0])
-    body = "".join(s for _, s in out) + "".join(s for _, s in items)
-    return "".join(defs), body
+
+    def structure():
+        g, pos = [], {}
+        for i in range(5):
+            for j in range(4):
+                pos[i, j] = (30 + 30 * i, 54 + 26 * j)
+        hub = (2, 1)
+        for (i, j), (x, y) in pos.items():
+            for di, dj in ((1, 0), (0, 1)):
+                if (i + di, j + dj) in pos:
+                    x2, y2 = pos[i + di, j + dj]
+                    near = hub in ((i, j), (i + di, j + dj))
+                    st = S(stroke=c["accent"], stroke_width=2.2) if near else S(stroke=c["muted"], stroke_width=1, opacity=.45)
+                    g.append(f'<line x1="{x}" y1="{y}" x2="{x2}" y2="{y2}" style="{st}"/>')
+        hx, hy = pos[hub]
+        g.append(f'<circle cx="{hx}" cy="{hy}" r="12" style="{S(fill="none", stroke=c["teal"], stroke_width=1.5, stroke_dasharray="3 3")}"/>')
+        for (i, j), (x, y) in pos.items():
+            a = (i + j) % 2 == 0
+            g.append(f'<circle cx="{x}" cy="{y}" r="{6.5 if a else 4.5}" style="{S(fill=c["accent"] if a else c["teal"])}"/>')
+        return g
+
+    def learn():
+        g, layers = [], []
+        for x, n in ((26, 4), (70, 5), (114, 4), (156, 1)):
+            layers.append([(x, 93 + (k - (n - 1) / 2) * 20) for k in range(n)])
+        pulse = {(0, 1, 2), (1, 2, 1), (2, 0, 0), (0, 3, 3), (1, 4, 3)}
+        for li in range(3):
+            for a, (x1, y1) in enumerate(layers[li]):
+                for b, (x2, y2) in enumerate(layers[li + 1]):
+                    g.append(f'<line x1="{x1}" y1="{y1:.0f}" x2="{x2}" y2="{y2:.0f}" style="{S(stroke=c["muted"], stroke_width=1, opacity=.3)}"/>')
+                    if (li, a, b) in pulse:
+                        g.append(f'<line class="pulse" x1="{x1}" y1="{y1:.0f}" x2="{x2}" y2="{y2:.0f}" style="{S(stroke=c["accent"], stroke_width=2)}"/>')
+        for li, layer in enumerate(layers):
+            for x, y in layer:
+                last = li == 3
+                g.append(f'<circle cx="{x}" cy="{y:.0f}" r="{7 if last else 5.5}" '
+                         f'style="{S(fill=c["accent"] if last else c["panel"], stroke=c["accent"], stroke_width=1.6)}"/>')
+        return g
+
+    def predict():
+        peaks = [(32, 42, 8), (54, 62, 7), (72, 34, 6), (116, 40, 6), (134, 66, 8), (155, 38, 6)]
+        pts = []
+        for n in range(73):
+            x = 20 + 2 * n
+            v = 0 if 84 < x < 104 else sum(A * math.exp(-((x - m) / s) ** 2) for m, A, s in peaks)
+            pts.append(f"{x},{132 - v:.1f}")
+        line = "M" + " L".join(pts)
+        return [f'<path d="{line} L164,132 L20,132 Z" style="{S(fill=c["accent"], opacity=.14)}"/>',
+                f'<path d="{line}" style="{S(fill="none", stroke=c["accent"], stroke_width=1.8, stroke_linejoin="round")}"/>',
+                f'<line x1="16" y1="132" x2="168" y2="132" style="{S(stroke=c["muted"], stroke_width=1)}"/>',
+                f'<line x1="94" y1="46" x2="94" y2="132" style="{S(stroke=c["now"], stroke_width=1.4, stroke_dasharray="3 3")}"/>',
+                f'<text x="98" y="56" style="{S(fill=c["now"], font_family=SANS, font_size=f"{sub_fs - .5}px", font_style="italic")}">E<tspan dy="3" style="font-size:{sub_fs - 3}px">F</tspan></text>']
+
+    def verify():
+        g = [f'<path d="M30,46 L30,132 L162,132" style="{S(fill="none", stroke=c["muted"], stroke_width=1)}"/>',
+             f'<line x1="30" y1="132" x2="158" y2="50" style="{S(stroke=c["muted"], stroke_width=1, stroke_dasharray="4 4", opacity=.8)}"/>']
+        for t_, e in ((.1, .05), (.18, -.04), (.27, .06), (.35, -.02), (.42, .07), (.5, -.05),
+                      (.57, .03), (.64, -.06), (.72, .04), (.8, -.03), (.88, .05), (.94, -.02)):
+            x, y = 30 + 128 * t_, 132 - 82 * (t_ + e)
+            g.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.8" style="{S(fill=c["teal"], opacity=.9)}"/>')
+        return g
+
+    drawers = [structure, learn, predict, verify]
+    for ((ox, oy), num, title, sub), draw in zip(panels, drawers):
+        out.append(f'<g transform="translate({ox},{oy})">')
+        out.append(f'<rect x=".5" y=".5" width="{W - 1}" height="{H - 1}" rx="12" style="{S(fill=c["panel"], stroke=c["border"])}"/>')
+        out.append(f'<text x="14" y="{12 + title_fs}" style="{S(font_family=SANS, font_size=f"{title_fs}px", font_weight=600, fill=c["text"])}">'
+                   f'<tspan style="{S(fill=c["teal"])}">{num}</tspan>  {escape(title)}</text>')
+        if subtitles:
+            out.append(f'<text x="14" y="{H - 12}" style="{S(font_family=SANS, font_size=f"{sub_fs}px", fill=c["muted"])}">{escape(sub)}</text>')
+        out.extend(draw())
+        out.append('</g>')
+    arrow = S(fill="none", stroke=c["accent"], stroke_width=1.8)
+    for d in ("M202,105 L236,105", "M330,192 L330,236", "M238,325 L204,325", "M110,238 L110,194"):
+        out.append(f'<path class="flow" d="{d}" style="{arrow}" marker-end="url(#{mid})"/>')
+    out.append(f'<text x="122" y="{219 + sub_fs / 3:.0f}" style="{S(font_family=SANS, font_size=f"{sub_fs}px", font_style="italic", fill=c["muted"])}">correct &amp; retrain</text>')
+    return defs, "".join(out)
 
 
 # ---------------------------------------------------------------- banner
 def banner(t, name):
     W, H = 1280, 340
-    defs, crystal = zrnisn_svg(t, 1060, 150, 150, gid=f"b{name}")
-    chips = ["Heusler thermoelectrics", "Graph neural networks", "MLIPs", "DFT"]
+    colors = dict(panel=t["card"], border=t["border"], text=t["text"], muted=t["muted"],
+                  accent=t["accent"], teal=t["teal"], now=t["orange"])
+    defs, loop = loop_diagram(colors, f"arr{name}", title_fs=24, sub_fs=17, subtitles=False)
+    crystal = f'<g transform="translate(918,14) scale(.725)">{loop}</g>'
+    chips = ["AI for science", "Graph neural networks", "MLIPs", "DFT"]
     chip_svg, x = [], 64
     for c in chips:
         w = 16 + len(c) * 9.6 + 16
@@ -133,12 +160,6 @@ def banner(t, name):
                         f'<text x="{x + w/2:.0f}" y="275" font-family="{SANS}" font-size="17" font-weight="600" '
                         f'fill="{t["accent"]}" text-anchor="middle">{escape(c)}</text>')
         x += w + 12
-    legend = []
-    lx = 940
-    for el, (rgb, _) in ELEMENTS.items():
-        legend.append(f'<circle cx="{lx}" cy="314" r="6" fill="{shade(rgb, 0)}"/>'
-                      f'<text x="{lx + 11}" y="319" font-family="{SANS}" font-size="13" fill="{t["muted"]}">{el}</text>')
-        lx += 52
     return f'''<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="{H}" viewBox="0 0 {W} {H}" role="img" aria-label="Shivam Randive: machine learning for materials discovery">
 <defs>
 <linearGradient id="bg{name}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="{t["bg2"]}"/><stop offset="1" stop-color="{t["bg3"]}"/></linearGradient>
@@ -156,8 +177,6 @@ def banner(t, name):
 <text x="64" y="228" font-family="{SANS}" font-size="23" fill="{t["muted"]}">Research intern · Spin Theory Group, NIMS, Japan</text>
 {"".join(chip_svg)}
 {crystal}
-{"".join(legend)}
-<text x="1220" y="319" font-family="{SANS}" font-size="13" fill="{t["faint"]}" text-anchor="end">ZrNiSn, half-Heusler</text>
 </svg>'''
 
 
@@ -261,7 +280,7 @@ CARDS = {
 # ---------------------------------------------------------------- journey
 def journey(t, name):
     W, H = 1280, 230
-    stops = [("2024", "IIT Bhilai", "Summer research intern", "cell"),
+    stops = [("2024", "IIT Bhilai", "Summer research intern", "muted"),
              ("2025 –", "SVNIT Surat", "Student researcher", "accent"),
              ("2025", "S. N. Bose Centre", "SRFP fellow, Kolkata", "accent"),
              ("2026", "NIMS, Japan", "Research intern, Spin Theory Group", "orange"),
