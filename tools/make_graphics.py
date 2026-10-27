@@ -183,7 +183,7 @@ def banner(t, name):
 # ---------------------------------------------------------------- stats strip
 def stats(t, name):
     W, H = 1280, 150
-    items = [("2", "first-author manuscripts"), ("106,235", "structures screened"),
+    items = [("2", "first-author, submitted"), ("106,235", "structures screened"),
              ("3,625", "DFT transport runs"), ("9,495", "κL values in dataset"),
              ("4", "institutes, 2 countries")]
     cw = W / len(items)
@@ -244,13 +244,13 @@ CARDS = {
              "conductivity with transfer-learned universal interatomic potentials.",
              [("2", "pretrained MLIPs: eSEN, EquiformerV3"), ("S, κL", "Seebeck and lattice thermal conductivity"),
               ("New", "alkali and alkaline-earth compositions")]),
-    "screening": ("PREPRINT", "accent", "arXiv:2610.18179 · 2026",
+    "screening": ("SUBMITTED", "accent", "arXiv:2610.18179 · 2026",
                   "ML-guided thermoelectric screening of 106,235 Heuslers",
                   "The density of states can choose what to calculate; only a band structure shows whether a gap "
                   "exists.",
                   [("≈4×", "fewer DFT runs per confirmed hit"), ("80", "candidates, 61 never measured"),
                    ("3,625", "first-principles transport runs")]),
-    "kappa": ("MANUSCRIPT", "teal", "Computational Materials Science · 2026",
+    "kappa": ("SUBMITTED", "teal", "Code & data on Zenodo · 2026",
               "Making ML predictions of thermal conductivity match experiment",
               "Published calculations overestimate measured lattice thermal conductivity by a median 1.69×; a "
               "two-parameter correction fixes it.",

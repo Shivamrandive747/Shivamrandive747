@@ -12,11 +12,11 @@
 
 I discover new alloys in the Heusler family and predict their properties for thermoelectric applications,
 and I test every machine-learning prediction against first-principles calculations and experiment. Two
-first-author manuscripts so far, and now transfer learning of universal interatomic potentials at NIMS, Japan.
+first-author papers submitted so far, and now transfer learning of universal interatomic potentials at NIMS, Japan.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg">
-  <img alt="At a glance: 2 first-author manuscripts; 106,235 Heusler structures screened; 3,625 DFT transport calculations; 9,495 thermal-conductivity values; 4 research institutes in 2 countries." src="assets/stats-light.svg" width="100%">
+  <img alt="At a glance: 2 first-author papers submitted; 106,235 Heusler structures screened; 3,625 DFT transport calculations; 9,495 thermal-conductivity values; 4 research institutes in 2 countries." src="assets/stats-light.svg" width="100%">
 </picture>
 
 ## Projects
@@ -28,13 +28,13 @@ first-author manuscripts so far, and now transfer learning of universal interato
   </picture></a>
   <a href="https://doi.org/10.48550/arXiv.2610.18179"><picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/card-screening-dark.svg">
-    <img alt="Preprint, arXiv 2026: ML-guided thermoelectric screening of 106,235 Heusler structures. About 4 times fewer DFT runs per hit; 80 candidates, 61 never measured." src="assets/card-screening-light.svg" width="49%">
+    <img alt="Submitted, preprint on arXiv 2026: ML-guided thermoelectric screening of 106,235 Heusler structures. About 4 times fewer DFT runs per hit; 80 candidates, 61 never measured." src="assets/card-screening-light.svg" width="49%">
   </picture></a>
 </p>
 <p align="center">
   <a href="https://github.com/Shivamrandive747/half-heusler-kappa-calibration"><picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/card-kappa-dark.svg">
-    <img alt="Manuscript 2026: making ML predictions of thermal conductivity match experiment. 33% median error versus 46 to 47% for baselines." src="assets/card-kappa-light.svg" width="49%">
+    <img alt="Submitted 2026: making ML predictions of thermal conductivity match experiment. 33% median error versus 46 to 47% for baselines." src="assets/card-kappa-light.svg" width="49%">
   </picture></a>
   <a href="https://drive.google.com/file/d/1dD-fT1N9dyx78ICVK90nR-8M5JnDo-rm/view?usp=sharing"><picture>
     <source media="(prefers-color-scheme: dark)" srcset="assets/card-srfp-dark.svg">
@@ -69,7 +69,7 @@ first-author manuscripts so far, and now transfer learning of universal interato
 </details>
 
 <details>
-<summary><b>ML-guided thermoelectric screening of 106,235 Heusler structures</b> · preprint, <a href="https://doi.org/10.48550/arXiv.2610.18179">arXiv:2610.18179</a></summary>
+<summary><b>ML-guided thermoelectric screening of 106,235 Heusler structures</b> · submitted · preprint <a href="https://doi.org/10.48550/arXiv.2610.18179">arXiv:2610.18179</a></summary>
 
 <br>
 
@@ -88,7 +88,7 @@ first-author manuscripts so far, and now transfer learning of universal interato
 </details>
 
 <details>
-<summary><b>Making ML predictions of thermal conductivity match experiment</b> · manuscript for <i>Computational Materials Science</i></summary>
+<summary><b>Making ML predictions of thermal conductivity match experiment</b> · submitted to a journal</summary>
 
 <br>
 
@@ -178,5 +178,6 @@ first-author manuscripts so far, and now transfer learning of universal interato
   <a href="mailto:i22ph019@phy.svnit.ac.in">Email</a> ·
   <a href="https://shivamrandive747.github.io">Website</a> ·
   <a href="https://shivamrandive747.github.io/assets/Shivam_Randive_CV.pdf">CV</a> ·
+  <a href="https://shivamrandive747.github.io/statement.html">Research statement</a> ·
   <a href="https://orcid.org/0009-0005-1403-4484">ORCID</a>
 </p>
