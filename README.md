@@ -11,9 +11,13 @@
   <a href="mailto:i22ph019@phy.svnit.ac.in"><img alt="Email" src="https://img.shields.io/badge/Email-i22ph019%40phy.svnit.ac.in-555555?style=flat-square&logo=gmail&logoColor=white"></a>
 </p>
 
-I discover new alloys in the Heusler family and predict their properties for thermoelectric applications,
-and I test every machine-learning prediction against first-principles calculations and experiment. Two
-first-author papers submitted so far, and now transfer learning of universal interatomic potentials at NIMS, Japan.
+I use machine learning and first-principles calculations to discover new Heusler thermoelectrics, materials
+that convert a temperature difference directly into electrical power. A good thermoelectric needs a high
+Seebeck coefficient and a low lattice thermal conductivity, and my work addresses both: an ML screen of over
+100,000 Heusler structures that found 80 promising candidates, 61 never studied experimentally, and a model
+that predicts the measured thermal conductivity, applied to 10 unmeasured half-Heusler compounds. At NIMS,
+Japan, I am extending this search to unexplored alkali- and alkaline-earth Heusler chemistries with
+pretrained interatomic potentials.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/stats-dark.svg">
