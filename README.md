@@ -7,6 +7,7 @@
   <a href="https://shivamrandive747.github.io"><img alt="Website" src="https://img.shields.io/badge/Website-shivamrandive747.github.io-1b3a5c?style=flat-square"></a>
   <a href="https://doi.org/10.48550/arXiv.2610.18179"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2610.18179-b31b1b?style=flat-square&logo=arxiv&logoColor=white"></a>
   <a href="https://orcid.org/0009-0005-1403-4484"><img alt="ORCID" src="https://img.shields.io/badge/ORCID-0009--0005--1403--4484-a6ce39?style=flat-square&logo=orcid&logoColor=white"></a>
+  <a href="https://scholar.google.com/citations?user=g3rGf_MAAAAJ"><img alt="Google Scholar" src="https://img.shields.io/badge/Google%20Scholar-profile-4285F4?style=flat-square&logo=googlescholar&logoColor=white"></a>
   <a href="mailto:i22ph019@phy.svnit.ac.in"><img alt="Email" src="https://img.shields.io/badge/Email-i22ph019%40phy.svnit.ac.in-555555?style=flat-square&logo=gmail&logoColor=white"></a>
 </p>
 
@@ -179,5 +180,6 @@ first-author papers submitted so far, and now transfer learning of universal int
   <a href="https://shivamrandive747.github.io">Website</a> ·
   <a href="https://shivamrandive747.github.io/assets/Shivam_Randive_CV.pdf">CV</a> ·
   <a href="https://shivamrandive747.github.io/statement.html">Research statement</a> ·
-  <a href="https://orcid.org/0009-0005-1403-4484">ORCID</a>
+  <a href="https://orcid.org/0009-0005-1403-4484">ORCID</a> ·
+  <a href="https://scholar.google.com/citations?user=g3rGf_MAAAAJ">Google Scholar</a>
 </p>
