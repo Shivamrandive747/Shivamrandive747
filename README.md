@@ -62,9 +62,9 @@ first-author papers submitted so far, and now transfer learning of universal int
 
 - **Idea:** build new alkali- and alkaline-earth-metal Heusler compositions combinatorially and rank them by
   predicted Seebeck coefficient and lattice thermal conductivity, using universal machine-learned interatomic
-  potentials (eSEN, EquiformerV3) that already learned chemistry from millions of DFT calculations.
-- **Approach:** keep the pretrained network frozen and train a small model on its inner features, finding
-  which layers, and which design (convolution or attention), best capture transport.
+  potentials (MLIPs: eSEN, EquiformerV3) that already learned chemistry from millions of DFT calculations.
+- **Approach:** apply frozen transfer learning to these MLIPs on phonon force data, and predict lattice
+  thermal conductivity through a Phonopy and Phono3py pipeline.
 - **Status:** work in progress.
 
 </details>
